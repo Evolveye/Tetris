@@ -10,60 +10,60 @@ using System.Windows.Forms;
 
 namespace Tetris {
   class Box : Panel {
-    Color color;
-    Pen pen;
-    Size measuredFont;
-    int borderWidth = 4;
-    string label = "";
-
     public int DrawingWidth {
-      get => Width - 2 * (borderWidth + 1);
+      get => Width - 2 * (_BorderWidth + 1);
     }
     public int DrawingHeight {
-      get => Height - measuredFont.Height - borderWidth - 2;
+      get => Height - _MeasuredFont.Height - _BorderWidth - 2;
     }
+
+    Color _Color;
+    Pen _Pen;
+    Size _MeasuredFont;
+    int _BorderWidth = 4;
+    string _Label = "";
 
     public Box( Color color, string label, int left, int top, int width=200, int height=150 ) {
       if ( color == null )
-        this.color = Color.FromArgb( 40, 255, 255, 255 );
+        this._Color = Color.FromArgb( 40, 255, 255, 255 );
       else
-        this.color = color;
+        this._Color = color;
 
-      this.label = label;
+      this._Label = label;
 
       this.Left = left;
       this.Top = top;
       this.Width = width;
       this.Height = height;
 
-      this.pen = new Pen( this.color );
-      this.pen.Width = borderWidth;
+      this._Pen = new Pen( this._Color );
+      this._Pen.Width = _BorderWidth;
 
       this.Font = new Font( FontFamily.GenericMonospace, 10, FontStyle.Bold );
 
-      measuredFont = TextRenderer.MeasureText( label, this.Font );
+      _MeasuredFont = TextRenderer.MeasureText( label, this.Font );
     }
 
     public string Label {
-      get => label;
+      get => _Label;
       set {
-        label = value;
-        measuredFont = TextRenderer.MeasureText( value, this.Font );
+        _Label = value;
+        _MeasuredFont = TextRenderer.MeasureText( value, this.Font );
 
         Invalidate();
       }
     }
 
     public void UpdateSize( int width, int height ) {
-      Width = width + 2 * (borderWidth + 1);
-      Height = height + measuredFont.Height + borderWidth + 2;
+      Width = width + 2 * (_BorderWidth + 1);
+      Height = height + _MeasuredFont.Height + _BorderWidth + 2;
     }
     public void Clear() {
-      int top = measuredFont.Height + 1;
+      int top = _MeasuredFont.Height + 1;
 
       this.CreateGraphics().FillRectangle(
         new SolidBrush( this.BackColor ),
-        new Rectangle( borderWidth, top, this.Width - borderWidth * 2, this.Height - top - borderWidth )
+        new Rectangle( _BorderWidth, top, this.Width - _BorderWidth * 2, this.Height - top - _BorderWidth )
       );
     }
     public void FillRectangle( Color color, int x, int y, int width, int height ) {
@@ -87,18 +87,18 @@ namespace Tetris {
 
       this.CreateGraphics().FillRectangle(
         new SolidBrush( color ),
-        new Rectangle( borderWidth + 1 + x, measuredFont.Height + 1 + y, width, height )
+        new Rectangle( _BorderWidth + 1 + x, _MeasuredFont.Height + 1 + y, width, height )
       );
     }
 
     protected override void OnPaint( PaintEventArgs e ) {
       base.OnPaint( e );
 
-      SolidBrush brushText = new SolidBrush( this.color );
+      SolidBrush brushText = new SolidBrush( this._Color );
 
-      int left = (this.Width - measuredFont.Width) / 2;
-      int top = measuredFont.Height / 2 + 1;
-      int halfBorderWidth = (int) pen.Width / 2;
+      int left = (this.Width - _MeasuredFont.Width) / 2;
+      int top = _MeasuredFont.Height / 2 + 1;
+      int halfBorderWidth = (int) _Pen.Width / 2;
 
       Point [] points = {
         new Point( left, top ),
@@ -106,11 +106,11 @@ namespace Tetris {
         new Point( halfBorderWidth, this.Height - halfBorderWidth ),
         new Point( this.Width - halfBorderWidth, this.Height - halfBorderWidth ),
         new Point( this.Width - halfBorderWidth, top ),
-        new Point( left + measuredFont.Width, top ),
+        new Point( left + _MeasuredFont.Width, top ),
       };
 
-      e.Graphics.DrawLines( pen, points );
-      e.Graphics.DrawString( label, this.Font, brushText, new PointF( left, 0 ) );
+      e.Graphics.DrawLines( _Pen, points );
+      e.Graphics.DrawString( _Label, this.Font, brushText, new PointF( left, 0 ) );
     }
   }
 

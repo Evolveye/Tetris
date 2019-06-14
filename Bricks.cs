@@ -57,7 +57,7 @@ namespace Tetris {
 
       _BuildBigBrick( bigBrick, x, y );
 
-      bigBrick.Sort( (a, b) => a.x <= b.x && a.y <= b.y  ?  1  :  -1 );
+      bigBrick.Sort( (a, b) => a.X <= b.X && a.Y <= b.Y  ?  1  :  -1 );
 
       return bigBrick;
     }
@@ -75,7 +75,7 @@ namespace Tetris {
           _BuildBigBrick( bigBrick, x, y );
 
           foreach ( Brick brick in bigBrick )
-            coords.Add( new Coords( brick.x, brick.y ) );
+            coords.Add( new Coords( brick.X, brick.Y ) );
 
           bigBricks.Add( bigBrick );
         }
@@ -155,7 +155,7 @@ namespace Tetris {
       return Add( owner, coords );
     }
     public bool Add( string owner, List<Coords> coords ) {
-      Color color = Brick.colors[ Brick.random.Next( Brick.colors.Length ) ];
+      Color color = Brick.colors[ Brick.Random.Next( Brick.colors.Length ) ];
 
       int minX = coords[ 0 ].X;
       int maxX = coords[ 0 ].X;
@@ -219,14 +219,14 @@ namespace Tetris {
     public void Move( List<List<Brick>> bigBricksToMove, int jumpX, int jumpY ) {
       foreach ( List<Brick> bigBrick in bigBricksToMove.ToList() )
         foreach ( Brick brick in bigBrick ) {
-          int newX = brick.x + jumpX;
-          int newY = brick.y + jumpY;
+          int newX = brick.X + jumpX;
+          int newY = brick.Y + jumpY;
 
           if ( !IsEmpty( newX, newY ) ) {
             bool exists = false;
 
             foreach ( List<Brick> anotherBigBrick in bigBricksToMove )
-              if ( anotherBigBrick.Exists( b => b.x == newX && b.y == newY ) ) {
+              if ( anotherBigBrick.Exists( b => b.X == newX && b.Y == newY ) ) {
                 exists = true;
                 break;
               }
@@ -241,45 +241,45 @@ namespace Tetris {
       List<Brick> bricks = bigBricksToMove.SelectMany( c => c ).ToList();
 
       if ( jumpX >= 0 && jumpY >= 0 ) {
-        bricks.Sort( (a, b) => b.x - a.x );
-        bricks.Sort( (a, b) => b.y - a.y );
+        bricks.Sort( (a, b) => b.X - a.X );
+        bricks.Sort( (a, b) => b.Y - a.Y );
       }
       else if ( jumpX >= 0 && jumpY < 0 ) {
-        bricks.Sort( (a, b) => b.x - a.x );
-        bricks.Sort( (a, b) => a.y - b.y );
+        bricks.Sort( (a, b) => b.X - a.X );
+        bricks.Sort( (a, b) => a.Y - b.Y );
       }
       else if ( jumpX < 0 && jumpY >= 0 ) {
-        bricks.Sort( (a, b) => a.x - b.x );
-        bricks.Sort( (a, b) => b.y - a.y );
+        bricks.Sort( (a, b) => a.X - b.X );
+        bricks.Sort( (a, b) => b.Y - a.Y );
       }
       else { // ( jumpX < 0 && jumpY < 0 )
-        bricks.Sort( (a, b) => a.x - b.x );
-        bricks.Sort( (a, b) => a.y - b.y );
+        bricks.Sort( (a, b) => a.X - b.X );
+        bricks.Sort( (a, b) => a.Y - b.Y );
       }
 
       foreach ( Brick brick in bricks ) {
-        int newX = brick.x + jumpX;
-        int newY = brick.y + jumpY;
+        int newX = brick.X + jumpX;
+        int newY = brick.Y + jumpY;
 
-        Bricks[ brick.y, brick.x ] = null;
+        Bricks[ brick.Y, brick.X ] = null;
 
         Bricks[ newY, newX ] = brick;
-        Bricks[ newY, newX ].x = newX;
-        Bricks[ newY, newX ].y = newY;
+        Bricks[ newY, newX ].X = newX;
+        Bricks[ newY, newX ].Y = newY;
       }
     }
     public void Jump() {
       List<List<Brick>> bigBricks = GetAllBig()
-        .Where( big => big.Count > 0 && big[ 0 ].state == Brick.State.Dynamic )
+        .Where( big => big.Count > 0 && big[ 0 ].State == Brick.BrickState.Dynamic )
         .ToList();
 
       foreach ( List<Brick> bigBrick in bigBricks )
         foreach ( Brick brick in bigBrick )
-          if ( !IsEmpty( brick.x, brick.y + 1 ) && !brick.borderBottom ) {
+          if ( !IsEmpty( brick.X, brick.Y + 1 ) && !brick.BorderBottom ) {
             bool exists = false;
 
             foreach ( List<Brick> anotherBigBrick in bigBricks )
-              if ( anotherBigBrick.Exists( b => b.x == brick.x && b.y == brick.y + 1 ) ) {
+              if ( anotherBigBrick.Exists( b => b.X == brick.X && b.Y == brick.Y + 1 ) ) {
                 exists = true;
                 break;
               }
@@ -288,11 +288,11 @@ namespace Tetris {
               bool wasSterable = false;
 
               foreach ( Brick b in bigBrick ) {
-                b.state = Brick.State.Static;
+                b.State = Brick.BrickState.Static;
 
-                if ( b.sterable ) {
+                if ( b.Sterable ) {
                   wasSterable = true;
-                  b.sterable = false;
+                  b.Sterable = false;
                 }
               }
 
@@ -307,42 +307,42 @@ namespace Tetris {
     }
     public void Rotate() {
       List<List<Brick>> sterableBricks = GetAllBig()
-        .Where( b => b.Count > 0 && b[ 0 ].state == Brick.State.Dynamic && b[ 0 ].sterable )
+        .Where( b => b.Count > 0 && b[ 0 ].State == Brick.BrickState.Dynamic && b[ 0 ].Sterable )
         .ToList();
 
       foreach ( List<Brick> bigBrick in sterableBricks ) {
         List<Coords> coords = new List<Coords>();
-        int minX = bigBrick[ 0 ].x;
-        int maxX = bigBrick[ 0 ].x;
-        int minY = bigBrick[ 0 ].y;
-        int maxY = bigBrick[ 0 ].y;
+        int minX = bigBrick[ 0 ].X;
+        int maxX = bigBrick[ 0 ].X;
+        int minY = bigBrick[ 0 ].Y;
+        int maxY = bigBrick[ 0 ].Y;
 
         foreach ( Brick brick in bigBrick ) {
-          if ( brick.x < minX )
-            minX = brick.x;
+          if ( brick.X < minX )
+            minX = brick.X;
 
-          if ( brick.x > maxX )
-            maxX = brick.x;
+          if ( brick.X > maxX )
+            maxX = brick.X;
 
-          if ( brick.y < minY )
-            minY = brick.y;
+          if ( brick.Y < minY )
+            minY = brick.Y;
 
-          if ( brick.y > maxY )
-            maxY = brick.y;
+          if ( brick.Y > maxY )
+            maxY = brick.Y;
         }
 
         Coords pivot = new Coords( minX + (maxX - minX) / 2, minY + (maxY - minY) / 2 );
         bool canBeRotated = true;
 
         foreach ( Brick brick in bigBrick ) {
-          int x = pivot.X + pivot.Y - brick.y;
-          int y = pivot.Y - pivot.X + brick.x;
+          int x = pivot.X + pivot.Y - brick.Y;
+          int y = pivot.Y - pivot.X + brick.X;
 
           if ( !IsEmpty( x, y ) ) {
             canBeRotated = false;
 
             foreach ( Brick b in bigBrick )
-              if ( b.x == x && b.y == y ) {
+              if ( b.X == x && b.Y == y ) {
                 canBeRotated = true;
                 break;
               }
@@ -361,34 +361,34 @@ namespace Tetris {
           bool borderTop = false;
           bool borderBottom = false;
 
-          int x = pivot.X + pivot.Y - brick.y;
-          int y = pivot.Y - pivot.X + brick.x;
+          int x = pivot.X + pivot.Y - brick.Y;
+          int y = pivot.Y - pivot.X + brick.X;
 
-          if ( brick.borderLeft )
+          if ( brick.BorderLeft )
             borderTop = true;
 
-          if ( brick.borderRight )
+          if ( brick.BorderRight )
             borderBottom = true;
 
-          if ( brick.borderTop )
+          if ( brick.BorderTop )
             borderRight = true;
 
-          if ( brick.borderBottom )
+          if ( brick.BorderBottom )
             borderLeft = true;
 
-          if ( !coords.Exists( c => c.X == brick.x && c.Y == brick.y ) )
-            Bricks[ brick.y, brick.x ] = null;
+          if ( !coords.Exists( c => c.X == brick.X && c.Y == brick.Y ) )
+            Bricks[ brick.Y, brick.X ] = null;
 
           coords.Add( new Coords( x, y ) );
 
-          brick.borderLeft = borderLeft;
-          brick.borderRight = borderRight;
-          brick.borderTop = borderTop;
-          brick.borderBottom = borderBottom;
-          brick.x = x;
-          brick.y = y;
+          brick.BorderLeft = borderLeft;
+          brick.BorderRight = borderRight;
+          brick.BorderTop = borderTop;
+          brick.BorderBottom = borderBottom;
+          brick.X = x;
+          brick.Y = y;
 
-          Bricks[ brick.y, brick.x ] = brick;
+          Bricks[ brick.Y, brick.X ] = brick;
         }
       }
     }
@@ -401,7 +401,7 @@ namespace Tetris {
         for ( int x = Width - 1;  x >= 0;  x-- ) {
           Brick brick = Get( x, y );
 
-          if ( brick == null || brick.state == Brick.State.Dynamic ) {
+          if ( brick == null || brick.State == Brick.BrickState.Dynamic ) {
             rowToDestroy = false;
             break;
           }
@@ -422,10 +422,10 @@ namespace Tetris {
           Brick down = Get( x, y + 1 );
 
           if ( up != null )
-            up.borderBottom = false;
+            up.BorderBottom = false;
 
           if ( down != null )
-            down.borderTop = false;
+            down.BorderTop = false;
         }
 
       for ( int y = destryedRows[ 0 ] - 1;  y >= 0;  y-- )
@@ -433,14 +433,14 @@ namespace Tetris {
           Brick brick = Get( x, y );
 
           if ( brick != null )
-            brick.state = Brick.State.Dynamic;
+            brick.State = Brick.BrickState.Dynamic;
         }
 
       Score += (float) Math.Pow( 2, 1 + destryedRows.Count );
     }
 
     void _BuildBigBrick( List<Brick> bricks, int x, int y ) {
-      if ( bricks.Exists( b => b.x == x && b.y == y ) )
+      if ( bricks.Exists( b => b.X == x && b.Y == y ) )
         return;
 
       Brick brick = Get( x, y );
@@ -450,16 +450,16 @@ namespace Tetris {
 
       bricks.Add( brick );
 
-      if ( brick.borderLeft )
+      if ( brick.BorderLeft )
         _BuildBigBrick( bricks, x - 1, y );
 
-      if ( brick.borderRight )
+      if ( brick.BorderRight )
         _BuildBigBrick( bricks, x + 1, y );
 
-      if ( brick.borderTop )
+      if ( brick.BorderTop )
         _BuildBigBrick( bricks, x, y - 1 );
 
-      if ( brick.borderBottom )
+      if ( brick.BorderBottom )
         _BuildBigBrick( bricks, x, y + 1 );
     }
   }
@@ -485,37 +485,37 @@ namespace Tetris {
       Color.FromArgb( 255, 142, 206, 243 ),
       Color.FromArgb( 255, 255, 56, 252 )
     };
-    public enum State {
+    public enum BrickState {
       Dynamic,
       Static
     }
 
-    public static Random random = new Random();
+    public static Random Random = new Random();
 
-    public State state = Brick.State.Dynamic;
-    public Color color;
+    public BrickState State = BrickState.Dynamic;
+    public Color Color;
 
-    public int x;
-    public int y;
+    public int X;
+    public int Y;
 
-    public string owner;
-    public bool borderLeft;
-    public bool borderRight;
-    public bool borderTop;
-    public bool borderBottom;
-    public bool sterable = true;
+    public string Owner;
+    public bool BorderLeft;
+    public bool BorderRight;
+    public bool BorderTop;
+    public bool BorderBottom;
+    public bool Sterable = true;
 
     public Brick( string owner, int x, int y, bool borderLeft, bool borderRight, bool borderTop, bool borderBottom, Color color ) {
-      this.color = color == null  ?  Brick.colors[ Brick.random.Next( Brick.colors.Length ) ]  :  color;
-      this.owner = owner;
+      this.Color = color == null  ?  Brick.colors[ Brick.Random.Next( Brick.colors.Length ) ]  :  color;
+      this.Owner = owner;
 
-      this.x = x;
-      this.y = y;
+      this.X = x;
+      this.Y = y;
 
-      this.borderLeft = borderLeft;
-      this.borderRight = borderRight;
-      this.borderTop = borderTop;
-      this.borderBottom = borderBottom;
+      this.BorderLeft = borderLeft;
+      this.BorderRight = borderRight;
+      this.BorderTop = borderTop;
+      this.BorderBottom = borderBottom;
     }
   }
 }

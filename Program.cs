@@ -9,7 +9,6 @@ using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Media = System.Windows.Media;
 
 namespace Tetris {
   partial class MainForm : Form {
@@ -25,7 +24,7 @@ namespace Tetris {
     public bool [] Keys { get; private set; } = new bool[ 225 ];
     public int [] KeysTimers { get; private set; } = new int[ 225 ];
 
-    WavPlayer _Player_GameOver = new WavPlayer( "./oog/game_over.wav" );
+    WavPlayer _Player_GameOver = new WavPlayer( "./wav/game_over.wav" );
     WavPlayer _Player_LevelUp = new WavPlayer( "./wav/level_up.wav" );
     WavPlayer _Player_Warning = new WavPlayer( "./wav/warning.wav" );
     WavPlayer _Player_Music1 = new WavPlayer( "./wav/music-lvl-1.wav" );
@@ -344,7 +343,7 @@ namespace Tetris {
         while ( true ) {
           List<List<Brick>> fallingBricks = _Level
             .GetAllBig()
-            .Where( b => b.Count > 0 && b[ 0 ].state == Brick.State.Dynamic && b[ 0 ].sterable )
+            .Where( b => b.Count > 0 && b[ 0 ].State == Brick.BrickState.Dynamic && b[ 0 ].Sterable )
             .ToList();
 
           if ( fallingBricks.Count > 0 )
@@ -360,7 +359,7 @@ namespace Tetris {
         _Level.Move(
           _Level
             .GetAllBig()
-            .Where( b => b.Count > 0 && b[ 0 ].state == Brick.State.Dynamic && b[ 0 ].sterable )
+            .Where( b => b.Count > 0 && b[ 0 ].State == Brick.BrickState.Dynamic && b[ 0 ].Sterable )
             .ToList(),
           -1,
           0
@@ -373,7 +372,7 @@ namespace Tetris {
         _Level.Move(
           _Level
             .GetAllBig()
-            .Where( b => b.Count > 0 && b[ 0 ].state == Brick.State.Dynamic && b[ 0 ].sterable )
+            .Where( b => b.Count > 0 && b[ 0 ].State == Brick.BrickState.Dynamic && b[ 0 ].Sterable )
             .ToList(),
           1,
           0
@@ -470,7 +469,7 @@ namespace Tetris {
 
       int countOfSterable = _Level
         .GetAllBig()
-        .Where( b => b.Count > 0 && b[ 0 ].state == Brick.State.Dynamic && b[ 0 ].sterable )
+        .Where( b => b.Count > 0 && b[ 0 ].State == Brick.BrickState.Dynamic && b[ 0 ].Sterable )
         .Count();
 
       int bricksToSpawn = countOfSterable == 0  ?  1  :  0;
@@ -489,7 +488,7 @@ namespace Tetris {
       int height = _Ui_GameBox.DrawingHeight / _Level.Height;
 
       foreach ( Brick brick in _Level.GetAll() )
-        _Ui_GameBox.FillRectangle( brick.color, width * brick.x, height * brick.y, width, height );
+        _Ui_GameBox.FillRectangle( brick.Color, width * brick.X, height * brick.Y, width, height );
 
       _Ui_Scoreboard.ChangeItemValue( _nicknamePrefix + Nickname, "" + (_Level.Score * 10) );
     }
